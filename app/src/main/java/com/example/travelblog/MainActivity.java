@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.adapter.MainAdapter;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
@@ -18,10 +20,23 @@ public class MainActivity extends AppCompatActivity {
     private MainAdapter adapter;
     private SwipeRefreshLayout refreshLayout;
 
+    private static final int SORT_TITLE = 0;
+    private static final int SORT_DATE = 1;
+
+    private int currentSort = SORT_DATE;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setOnMenuItemClickListener(item -> {
+            if(item.getItemId() == R.id.sort) {
+                onSortClicked();
+            }
+            return false;
+        });
 
         adapter = new MainAdapter(blog -> BlogDetailsActivity.startBlogDetailsActivity(this, blog));
 
@@ -33,6 +48,25 @@ public class MainActivity extends AppCompatActivity {
         refreshLayout.setOnRefreshListener(this::loadData);
 
         loadData();
+    }
+
+    private void onSortClicked() {
+        String[] items = {"Title", "Date"};
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Sort Order")
+                .setSingleChoiceItems(items, currentSort, (dialog, which) -> {
+                    dialog.dismiss();
+                    currentSort = which;
+                    sortData();
+                }).show();
+    }
+
+    private void sortData() {
+        if (currentSort == SORT_TITLE) {
+            adapter.sortByTitle();
+        } else if (currentSort == SORT_DATE) {
+            adapter.sortByDate();
+        }
     }
 
     private void loadData() {

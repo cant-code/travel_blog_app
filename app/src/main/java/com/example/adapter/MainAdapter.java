@@ -16,6 +16,10 @@ import com.example.travelblog.Blog;
 import com.example.travelblog.R;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class MainAdapter extends ListAdapter<Blog, MainAdapter.MainViewHolder> {
 
     public interface OnItemClickListener {
@@ -40,6 +44,18 @@ public class MainAdapter extends ListAdapter<Blog, MainAdapter.MainViewHolder> {
     @Override
     public void onBindViewHolder(MainViewHolder holder, int position) {
         holder.bindTo(getItem(position));
+    }
+
+    public void sortByTitle() {
+        List<Blog> currentList = new ArrayList<>(getCurrentList());
+        Collections.sort(currentList, (o1, o2) -> o1.getTitle().compareTo(o2.getTitle()));
+        submitList(currentList);
+    }
+
+    public void sortByDate() {
+        List<Blog> currentList = new ArrayList<>(getCurrentList());
+        Collections.sort(currentList, ((o1, o2) -> o2.getDateMillis().compareTo(o1.getDateMillis())));
+        submitList(currentList);
     }
 
     public static final DiffUtil.ItemCallback<Blog> DIFF_CALLBACK =
