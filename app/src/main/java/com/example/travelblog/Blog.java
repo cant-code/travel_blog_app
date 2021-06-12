@@ -1,8 +1,11 @@
 package com.example.travelblog;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Objects;
 
-public class Blog {
+public class Blog implements Parcelable {
 
     private String id;
     private Author author;
@@ -12,6 +15,47 @@ public class Blog {
     private String description;
     private int views;
     private float rating;
+
+
+    protected Blog(Parcel in) {
+        id = in.readString();
+        title = in.readString();
+        date = in.readString();
+        image = in.readString();
+        description = in.readString();
+        views = in.readInt();
+        rating = in.readFloat();
+        author = in.readParcelable(Author.class.getClassLoader());
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(title);
+        dest.writeString(date);
+        dest.writeString(image);
+        dest.writeString(description);
+        dest.writeInt(views);
+        dest.writeFloat(rating);
+        dest.writeParcelable(author, 0);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Blog> CREATOR = new Creator<Blog>() {
+        @Override
+        public Blog createFromParcel(Parcel in) {
+            return new Blog(in);
+        }
+
+        @Override
+        public Blog[] newArray(int size) {
+            return new Blog[size];
+        }
+    };
 
     @Override
     public boolean equals(Object o) {
