@@ -64,33 +64,6 @@ public class BlogDetailsActivity extends AppCompatActivity {
         activity.startActivity(intent);
     }
 
-    private void loadData() {
-        BlogHttpClient.INSTANCE.loadBlogArticles(new BlogArticlesCallback() {
-            @Override
-            public void onSuccess(List<Blog> blogList) {
-                runOnUiThread(() -> showData(blogList.get(0)));
-            }
-
-            @Override
-            public void onError() {
-                runOnUiThread(() -> showErrorSnackbar());
-            }
-        });
-    }
-
-    private void showErrorSnackbar() {
-        View rootView = findViewById(android.R.id.content);
-        Snackbar snackbar = Snackbar.make(rootView,
-                "Error during loading blog articles",
-                Snackbar.LENGTH_INDEFINITE);
-        snackbar.setActionTextColor(getResources().getColor(R.color.orange500));
-        snackbar.setAction("Retry", v -> {
-            loadData();
-            snackbar.dismiss();
-        });
-        snackbar.show();
-    }
-
     private void showData(Blog blog) {
         progressBar.setVisibility(View.GONE);
         textTitle.setText(blog.getTitle());

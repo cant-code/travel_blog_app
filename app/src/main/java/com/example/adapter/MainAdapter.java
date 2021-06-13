@@ -67,7 +67,7 @@ public class MainAdapter extends ListAdapter<Blog, MainAdapter.MainViewHolder> {
 
     public void sortByTitle() {
         List<Blog> currentList = new ArrayList<>(getCurrentList());
-        Collections.sort(currentList, (o1, o2) -> o1.getTitle().compareTo(o2.getTitle()));
+        Collections.sort(currentList, ((o1, o2) -> o1.getTitle().compareTo(o2.getTitle())));
         submitList(currentList);
     }
 
@@ -81,7 +81,7 @@ public class MainAdapter extends ListAdapter<Blog, MainAdapter.MainViewHolder> {
             new DiffUtil.ItemCallback<Blog>() {
                 @Override
                 public boolean areItemsTheSame(@NonNull Blog oldItem, @NonNull Blog newItem) {
-                    return oldItem.getId().equals(newItem.getId());
+                    return oldItem.getId() == newItem.getId();
                 }
 
                 @Override

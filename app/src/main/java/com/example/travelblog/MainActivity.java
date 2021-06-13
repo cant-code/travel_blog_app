@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.adapter.MainAdapter;
+import com.example.repository.BlogRepository;
+import com.example.repository.DataFromNetworkCallback;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MainAdapter adapter;
     private SwipeRefreshLayout refreshLayout;
+    private BlogRepository repository;
 
     private static final int SORT_TITLE = 0;
     private static final int SORT_DATE = 1;
@@ -31,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        repository = new BlogRepository(getApplicationContext());
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setOnMenuItemClickListener(item -> {
@@ -47,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         refreshLayout = findViewById(R.id.refresh);
-        refreshLayout.setOnRefreshListener(this::loadData);
+        refreshLayout.setOnRefreshListener(this::loadDataFromNetwork);
 
         MenuItem searchItem = toolbar.getMenu().findItem(R.id.search);
         SearchView searchView = (SearchView) searchItem.getActionView();
@@ -64,7 +69,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        loadData();
+        loadDataFromDatabase();
+        loadDataFromNetwork();
     }
 
     private void onSortClicked() {
@@ -86,15 +92,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadData() {
+    private void loadDataFromDatabase() {
+        repository.loadDataFromDatabase(blogList -> runOnUiThread(() -> {
+            adapter.setData(blogList);
+            sortData();
+        }));
+    }
+
+    private void loadDataFromNetwork() {
         refreshLayout.setRefreshing(true);
-        BlogHttpClient.INSTANCE.loadBlogArticles(new BlogArticlesCallback() {
+
+        repository.loadDataFromNetwork(new DataFromNetworkCallback() {
             @Override
             public void onSuccess(List<Blog> blogList) {
                 runOnUiThread(() -> {
-                    refreshLayout.setRefreshing(false);
                     adapter.setData(blogList);
                     sortData();
+                    refreshLayout.setRefreshing(false);
                 });
             }
 
@@ -114,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.LENGTH_INDEFINITE);
         snackbar.setActionTextColor(getResources().getColor(R.color.orange500));
         snackbar.setAction("Retry", (v) -> {
-            loadData();
+            loadDataFromNetwork();
             snackbar.dismiss();
         });
         snackbar.show();
