@@ -1,7 +1,9 @@
 package com.example.travelblog;
 
 import android.content.Intent;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -47,6 +49,21 @@ public class MainActivity extends AppCompatActivity {
         refreshLayout = findViewById(R.id.refresh);
         refreshLayout.setOnRefreshListener(this::loadData);
 
+        MenuItem searchItem = toolbar.getMenu().findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.filter(newText);
+                return true;
+            }
+        });
+
         loadData();
     }
 
@@ -76,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(List<Blog> blogList) {
                 runOnUiThread(() -> {
                     refreshLayout.setRefreshing(false);
-                    adapter.submitList(blogList);
+                    adapter.setData(blogList);
+                    sortData();
                 });
             }
 

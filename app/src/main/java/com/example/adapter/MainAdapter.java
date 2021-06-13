@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,8 +20,26 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class MainAdapter extends ListAdapter<Blog, MainAdapter.MainViewHolder> {
+
+    private List<Blog> originalList = new ArrayList<>();
+
+    public void setData(@Nullable List<Blog> list) {
+        originalList = list;
+        super.submitList(list);
+    }
+
+    public void filter(String query) {
+        List<Blog> filteredList = new ArrayList<>();
+        for(Blog blog: originalList) {
+            if(blog.getTitle().toLowerCase().contains(query.toLowerCase())) {
+                filteredList.add(blog);
+            }
+        }
+        submitList(filteredList);
+    }
 
     public interface OnItemClickListener {
         void onItemClicked(Blog blog);
